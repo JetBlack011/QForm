@@ -1,0 +1,101 @@
+\section{Week of 6/20: Mainly Lots of Examples}
+
+\subsection*{Goals and Overview}
+Two of our main goals this week were to
+\begin{enumerate}
+	\item Put together the Heegaard diagrams for integer homology spheres we had found to form new multisection diagrams for which we can compute invariants (e.g. intersection form).
+	\item Find methods for generating many such examples quickly, either in the form of Heegaard diagrams or multisections.
+\end{enumerate}
+
+These goals led to fruitful examples and inquiries into the structures we're dealing with; in particular, we now better understand the construction of intersection forms for multisections and the linear symplectic geometry underlying our ideas.
+
+\subsection{Investigating a Nontrivial $4$-section}
+
+Until now, we have found a number of families of Heegaard diagrams representing integer homology spheres. This week, we managed to string them together in such a way that they formed an interesting $4$-section diagram.
+\begin{figure}[H]
+    \centering
+    \incfig[.8]{4-section}
+    \caption{A nontrivial $4$-section}
+    \label{fig:4-section}
+\end{figure}
+If we denote $M_{\alpha,\beta} = \left(\left< \alpha_i, \beta_i \right>\right)_{i,j}$ (and similarly for the other cut systems), we have the following intersection data:
+\begin{align*}
+	M_{\alpha,\beta} &= \begin{bmatrix} 1 & 0\\0 & 1 \end{bmatrix}, & M_{\alpha,\gamma} &= \begin{bmatrix} 1 & 0\\0 & 1 \end{bmatrix} & M_{\alpha,\delta} &= \begin{bmatrix} -1 & -1\\0 & -1 \end{bmatrix} \\
+	&& M_{\beta,\gamma} &= \begin{bmatrix} -1 & 0\\0 & -1 \end{bmatrix} & M_{\beta,\delta} &= \begin{bmatrix} 0 & -1\\1 & 0 \end{bmatrix} \\
+	&&&& M_{\gamma,\delta} &= \begin{bmatrix} -1 & 0\\1 & 1 \end{bmatrix} 
+\end{align*}
+One can verify that these matrices are unimodular, hence each ``adjacent'' pair of cut systems is a Heegaard diagram for an integer homology sphere. In this case, each of these diagrams represent $S^3$. Using the algorithm described before, we compute the intersection form to be \footnote{todo: Something is wrong here, this matrix is not symmetric; check intersection numbers and program for bugs} \[Q = \begin{bmatrix} 1 & 0 & -1 & 1\\0 & 1 & 0 & 1\\1 & 0 & 0 & 1\\-1 & -1 & 1 & -1 \end{bmatrix} \] This form is indefinite odd with signature $-2$.
+
+\subsection{Brieskorn Spheres and The Poincar\'e Homology Sphere}
+
+Having explored a few nontrivial multisections, we were retrospectively curious about nontrivial Heegaard diagrams. Multisections are defined so as to allow us to ``fill in'' the holes left after gluing with fake $4$-balls, namely those whose boundary is an integer homology sphere. All of our examples so far used only copies of $S^3$ as these boundaries, that is, our adjacent cut systems were Heegaard diagrams for $S^3$. What examples are there where this is not the case?
+
+This question led us to investigate the homology spheres that are already well known, as well as their Heegaard splittings. In particular, we focused on a family of homology spheres known as \textit{Brieskorn spheres}.
+
+\begin{definition}[Brieskorn Manifold]
+	Let $\Sigma(p,q,r)$ be the smooth, compact $3$-manifold obtained by intersecting the complex hypersurface \[x_1^p + x_2^1 + x_3^r = 0\] with the unit sphere $|x_1|^2 + |x_2|^2 + |x_3|^2 = 1$ with $p,q,r$ integers $\geq 2$. For some fixed $p,q,$ and $r$, we call $\Sigma(p,q,r)$ a Brieskorn manifold.\footnote{todo: Cite Milnor}
+\end{definition}
+
+\begin{theorem}
+	If $\Sigma = \Sigma(p,q,r)$ where $p,q,r$ are pairwise coprime, then $H_1(\Sigma)$ is trivial. That is, $\Sigma$ is an $\ZHS^3$. We call these \textit{Brieskorn spheres}. If one of $p,q,r$ is $1$, then $\Sigma$ is homeomorphic to $S^3$.
+\end{theorem}
+
+\begin{example}
+	One of the most important examples of a Brieskorn sphere is $\Sigma(2,3,5)$, called the \textit{Poincar\'e homology sphere}. 
+\end{example}
+
+\subsubsection*{A Brief Tangent on $E_8$}
+In this project, we are interested in the properties of the intersection forms of different genus $g$ multisections, especially the minimal $g$ required to get certain forms. It would be fascinating if we could find a genus $2$ multisection whose intersection form is $E_8$, as according to the classification of symmetric bilinear forms, this would tell us a lot about the previous question.
+
+Freedman tells us some essential facts about intersection forms and which manifolds might have such forms. In particular,
+\begin{theorem}
+	For each symmetric bilinear unimodular form $Q$ over $\Z$, there exists a closed oriented simply-connected topological $4$-manifold with $Q$ as its intersection form. If $Q$ is even, there is exactly one, and if $Q$ is odd, there are exactly two, at least one of which is nonsmoothable\footnote{todo: Cite Morgan Weiler's notes and/or Freedman's paper}.
+\end{theorem}
+Furthermore, there is a well-known topological manifold whose intersection form is (the Cartan matrix for) $E_8$, called the \textit{$E_8$ manifold}. Given the above theorem and the fact that the $E_8$ manifold has intersection form $E_8$ by construction, this is the unique such manifold. The $E_8$ manifold is constructed as follows: take Freedman's plumbing construction to obtain $M_{E_8}$ such that $\partial M_{E_8}$ is a homology sphere, and glue a fake $4$-ball along this boundary. It turns out that this homology sphere is the Poincar\'e homology sphere\footnote{todo: Cite Morgan Weiler's notes}; this is one of the reasons it is such an important example in this project.
+
+Although we have not yet found Heegaard splittings for general Brieskorn spheres, there is a Heegaard diagram for Poincar\'e that we hope to make use of in the future\footnote{todo: Finish diagram and cite Ozsv\'ath and Szab\'o's PCMI notes}:
+\begin{figure}[H]
+    \centering
+    \incfig[.2]{two-bridge-heegaard-diagram-for-the-poincare-homology-sphere}
+    \caption{Two-bridge Heegaard diagram for the Poincar\'e homology sphere}
+    \label{fig:two-bridge-heegaard-diagram-for-the-poincare-homology-sphere}
+\end{figure}
+
+We are still hoping to pursue these ideas further to create more examples, especially those relating to $E_8$.
+
+\subsection{Generating Examples with Linear Symplectic Geometry}
+
+\subsubsection*{Motivation}
+Given that we want to find many examples of multisection diagrams, it would be convenient if there were a way for us to generate compatible cut systems that yield multisections. The ideas for this section come from the observation that, given some Lagrangian subspace $L$ of a symplectic vector space $V$ and some symplectic transformation $T: V \to V$, the image of $L$ under $T$ is again Lagrangian.
+
+It is a natural question then, does the converse hold? That is, between any two Lagrangian subspaces $L,L' \subseteq V$, does there exists a symplectic transformation $T$ such that $T(L) = L'$? If this is the case, then we can consider the seemingly stronger condition that there exists a symplectic map bringing complementary pairs of Lagrangian subspaces to different pairs.
+
+\subsubsection*{Requisite Results}
+We first begin with some basic results from linear symplectic geometry over (free) $\Z$-modules. Consider the symplectic module $(V = \Z^{2g}, \omega)$\footnote{todo: Background? How much of this has been covered already?} .
+\begin{theorem}
+	For any Lagrangian subspace $L_1$ of $V$, there exists a \textit{complementary} or \textit{dual} Lagrangian subspace $L_2$ such that $L_1 \oplus L_2 = V$. Moreover, a choice of basis $(x_1,\dots,x_g)$ of $L_1$ determines a dual basis $(y_1,\dots,y_g)$ for a complement $L_2$ by $\omega(x_i, y_j) = \delta_{ij}$. Taken together, these bases form a \textit{symplectic basis} for $V$. 
+\end{theorem}
+
+\begin{proposition}
+	If $L_1,L_2$ and $L_1',L_2'$ are pairs of complementary Lagrangian subspaces and $T \in \GL(V)$ such that $L_1 \mapsto L_1'$ and $L_2 \mapsto L_2'$, then $T$ is a symplectic map.
+\end{proposition}
+\begin{proof}
+	Fix a symplectic basis $(x_1,\dots,x_g,y_1,\dots,y_g)$ for $V$ given by the pair $L_1,L_2$. Then it is not hard to see that $T$ induces a symplectic basis $(x_1',\dots,x_g',y_1',\dots,y_g')$ given by $L_1',L_2'$, namely 
+\end{proof}
+
+
+\begin{proposition}
+	For any Lagrangian subspace $L$ of $\Z^{2g}$, there exists a unimodular map $T: \Z^{2g} \to \Z^{2g}$ such that $T(L_1) = L$.
+\end{proposition}
+\begin{proof}
+	
+\end{proof}
+
+\begin{corollary}
+	For any two Lagrangian subspaces $L,L'$ of $\Z^{2g}$, there exists a unimodular map $T$ such that $T(L) = L'$.
+\end{corollary}
+
+\begin{proof}
+	
+\end{proof}
+
