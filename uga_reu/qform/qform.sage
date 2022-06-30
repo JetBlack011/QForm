@@ -89,9 +89,9 @@ def _compute_q_form(I, ker):
                     s += (e1[k] * e2[l]) * I[k][l]
             Q[i,j] = s
 
-    #assert Q.is_symmetric(), \
-    #        "Intersection form is not symmetric, this likely means the kernel "\
-    #        "was generated incorrectly"
+    assert Q.is_symmetric(), \
+            "Intersection form is not symmetric, this likely means the kernel "\
+            "was generated incorrectly"
 
     return Q
 

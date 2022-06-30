@@ -66,7 +66,7 @@ mats = [
 #print(f'Definiteness: {qform.definiteness(Q)}')
 #print(f'Parity: {qform.parity(Q)}\n')
 
-n = 2
+n = 3
 g = 2
 
 while True:
@@ -95,5 +95,10 @@ while True:
         print()
         #break
 
-    if random_Q[0:2,2:4] == matrix(2) or random_Q[2:4,0:2] == matrix(2):
+    if definiteness != 'indefinite':
+        break
+
+    det1 = random_Q[0:2,0:2].determinant()
+    det2 = random_Q[2:4,2:4].determinant()
+    if (det1 == 1 or det1 == -1) and (det2 == 1 or det2 == -1) and definiteness != 'indefinite':
         break
