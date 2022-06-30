@@ -3,8 +3,12 @@ import numpy as np
 import random
 
 I4 = matrix.identity(4)
-J = matrix([[0, 0, 1, 0], [0, 0, 0, 1], [-1, 0, 0, 0], [0, -1, 0, 0]])
-Sp4 = Sp(4, ZZ, invariant_form=J)
+
+def _J(g):
+    return block_matrix([[0, matrix.identity(g)],[-matrix.identity(g), 0]])
+
+def _Sp(n):
+    return Sp(n, ZZ, invariant_form=_J(ZZ(n / 2)))
 
 def _ind(y, x, l, n):
     return l - (n - y - 1) * (n - y) / 2 + x - y - 1
@@ -85,13 +89,13 @@ def _compute_q_form(I, ker):
                     s += (e1[k] * e2[l]) * I[k][l]
             Q[i,j] = s
 
-    assert Q.is_symmetric(), \
-            "Intersection form is not symmetric, this likely means the kernel "\
-            "was generated incorrectly"
+    #assert Q.is_symmetric(), \
+    #        "Intersection form is not symmetric, this likely means the kernel "\
+    #        "was generated incorrectly"
 
     return Q
 
-def intersection_data(cuts, B=I4, M=J):
+def intersection_data(g, cuts):
     """
     Given some elements of (?), find the intersection data using
     basis B.
@@ -103,24 +107,20 @@ def intersection_data(cuts, B=I4, M=J):
     default this is J
     :return: A block matrix of intersection data
     """
-    global _g
-
-    assert B.nrows() == B.ncols() == 4, \
-            f'B needs to be 4x4, but got {B.nrows()}x{B.cols()} instead'
-
-    _g = 2
+    B = matrix.identity(2 * g)
+    J = _J(g)
 
     dim = len(cuts) - 1
     I = matrix(len(cuts) * 2)
 
     for i in range(I.nrows()):
         for j in range(I.ncols()):
-            I[i,j] = (matrix(cuts[i//2][i%2]) * M * cuts[j//2][j%2])[0]
+            I[i,j] = (matrix(cuts[i//g][i%g]) * J * cuts[j//g][j%g])[0]
     
-    mats = [I[i:i+2,j:j+2]
-            for i in range(0, I.nrows() - 2, 2)
-            for j in range(i + 2, I.ncols(), 2)]
-
+    mats = [I[i:i+g,j:j+g]
+            for i in range(0, I.nrows() - g, g)
+            for j in range(i + g, I.ncols(), g)]
+    
     return mats
 
 def intersection_form(g, mats):
@@ -171,17 +171,18 @@ def parity(B):
     Q = QuadraticForm(ZZ, B + B.transpose())
     return Q.parity()
 
-def random_symplectic_matrix():
-    transvection = matrix([[1,0,0,0],[0,1,0,0],[1,0,1,0],[0,0,0,1]])
-    rotation     = matrix([[0,0,-1,0],[0,1,0,0],[1,0,0,0],[0,0,0,1]])
-    mix          = matrix([[1,0,0,0],[0,1,0,0],[0,-1,1,0],[-1,0,0,1]])
-    swap         = matrix([[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]])
+def random_symplectic_matrix(n):
+    # transvection = matrix([[1,0,0,0],[0,1,0,0],[1,0,1,0],[0,0,0,1]])
+    # rotation     = matrix([[0,0,-1,0],[0,1,0,0],[1,0,0,0],[0,0,0,1]])
+    # mix          = matrix([[1,0,0,0],[0,1,0,0],[0,-1,1,0],[-1,0,0,1]])
+    # swap         = matrix([[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]])
+    K = matrix([[1,0,0,0],[1,-1,0,0],[0,0,1,1],[0,0,0,-1]])
+    L = matrix([[0,0,-1,0],[0,0,0,-1],[1,0,1,0],[0,1,0,0]])
 
-    P = [random.choice([transvection, rotation, mix, swap])
-            for _ in range(random.randint(1,10))]
+    P = [random.choice([K, L]) for _ in range(random.randint(1,100))]
     M = reduce(lambda a, x: a * x, P)
 
-    assert M in Sp4, "Generated matrix is not in Sp(Z, 4)"
+    assert M in _Sp(4), "Generated matrix is not in Sp(Z, 4)"
 
     return (M, P)
 
@@ -190,24 +191,47 @@ def random_unimodular_matrix(n):
     return sage.matrix.constructor.random_unimodular_matrix(matrix_space,
             upper_bound=3)
 
-def random_diagram(n, B=I4, M=J):
+def random_diagram(n, g):
     """
     Generate a random genus 2 multisection diagram with n + 2 cut systems,
     the first two being the standard alpha and beta cut systems.
     """
+    global _g
+    _g = g
+    B = matrix.identity(2 * _g)
+
+    limit = 100
+
     while True:
-        cuts = [(B.column(0), B.column(1)), (B.column(2), B.column(3))]
+        limit_flag = True
+        cuts = [[B.column(i + j) for j in range(_g)] for i in range(0, B.ncols(), _g)]
 
-        # Bare minimum, pick a complement that we haven't seen yet
-        for _ in range(n):
-            new_cut = matrix(4)
-            while new_cut[0:2,2:4].determinant() == 0:
-                new_cut = random_symplectic_matrix()[0]
-            #basis = matrix((cuts[-1][0], cuts[-1][1], new_cut * cuts[-1][0], new_cut * cuts[-1][1])).transpose()
-            #new_cut = basis * new_cut
-            cuts.append((new_cut * cuts[-1][0], new_cut * cuts[-1][1]))
+        for _ in range(n - 1):
+            l = 0
+            while True and l < limit:
+                l += 1
+                symp_map = random_symplectic_matrix(2 * _g)[0]
+                image = [symp_map * cuts[-1][i] for i in range(_g)]
+                det = matrix(cuts[-1] + image).determinant()
+                if det == 1 or det == -1:
+                    break
+            limit_flag = limit_flag and l < limit
+            cuts.append(image)
 
-        if matrix([cuts[-1][0], cuts[-1][1], cuts[0][0], cuts[0][1]]).determinant() != 0:
+        l = 0
+        while True and l < limit:
+            l += 1
+            symp_map = random_symplectic_matrix(2 * _g)[0]
+            image = [symp_map * cuts[-1][i] for i in range(_g)]
+            det1 = matrix(cuts[-1] + image).determinant()
+            det2 = matrix(image + cuts[0]).determinant()
+
+            if (det1 == 1 or det1 == -1) and (det2 == 1 or det2 == -1):
+                break
+        cuts.append(image)
+
+        limit_flag = limit_flag and l < limit
+        if limit_flag:
             break
 
     return cuts

@@ -66,30 +66,34 @@ mats = [
 #print(f'Definiteness: {qform.definiteness(Q)}')
 #print(f'Parity: {qform.parity(Q)}\n')
 
-n = 4
+n = 2
+g = 2
 
 while True:
-    cuts = qform.random_diagram(n)
-    # print(f'{cuts}\n')
-    random_Q = qform.intersection_form(2, qform.intersection_data(cuts))
-    #print(f'Q =\n{random_Q}')
+    cuts = qform.random_diagram(n, g)
+    random_Q = qform.intersection_form(g, qform.intersection_data(g, cuts))
+    # determinant = random_Q.determinant()
     definiteness = qform.definiteness(random_Q)
-    if definiteness != 'degenerate':
-        parity = qform.parity(random_Q)
-        try:
-            signature = qform.signature(random_Q)
-            sign = signature[0] - signature[1]
-        except Exception:
-            sign = 0
-            print(f'Signature = ?')
-        #if parity == 'odd':
-            #print(f'Q = {signature[0]}<1> + {signature[1]}<-1>')
-        if parity =='even':
-            print(f'Definiteness = {definiteness}')
-            print(f'Parity = {parity}')
-            print(f'Signature = {signature}, {sign}')
-            print(f'Q = {ZZ(sign / 8) if sign % 8 == 0 else 0}*E_8 + {n - sign}*[[0,1],[1,0]]')
-            if sign == 8:
-                print('*********')
-                print(f'cuts = {cuts}\nQ =\n{random_Q}')
-                break
+    parity = qform.parity(random_Q)
+    signature = qform.signature(random_Q)
+    sign = signature[0] - signature[1]
+
+    if parity == 'odd':
+        print(f'Cuts = {cuts}\nQ =\n{random_Q}')
+        print(f'Q = {signature[0]}<1> + {signature[1]}<-1>')
+        print()
+    if parity =='even':
+        print(f'Definiteness = {definiteness}')
+        print(f'Parity = {parity}')
+        print(f'Signature = {signature}, {sign}')
+        print(f'Q = {ZZ(sign / 8) if sign % 8 == 0 else 0}*E_8 + {n - sign}*[[0,1],[1,0]]\n')
+        if sign == 8:
+            print('*********')
+            print(f'Cuts = {cuts}\nQ =\n{random_Q}')
+            break
+        print(f'Cuts = {cuts}\nQ =\n{random_Q}')
+        print()
+        #break
+
+    if random_Q[0:2,2:4] == matrix(2) or random_Q[2:4,0:2] == matrix(2):
+        break
