@@ -66,7 +66,7 @@ mats = [
 #print(f'Definiteness: {qform.definiteness(Q)}')
 #print(f'Parity: {qform.parity(Q)}\n')
 
-n = 3
+n = 4
 g = 2
 
 while True:
