@@ -1,5 +1,8 @@
 import qform
 import os
+import sys
+import time
+import multiprocessing
 
 # Genus
 g = 2
@@ -66,39 +69,59 @@ mats = [
 #print(f'Definiteness: {qform.definiteness(Q)}')
 #print(f'Parity: {qform.parity(Q)}\n')
 
-n = 4
-g = 2
+def f(run):
+    n = 6
+    g = 2
 
-while True:
-    cuts = qform.random_diagram(n, g)
-    random_Q = qform.intersection_form(g, qform.intersection_data(g, cuts))
-    # determinant = random_Q.determinant()
-    definiteness = qform.definiteness(random_Q)
-    parity = qform.parity(random_Q)
-    signature = qform.signature(random_Q)
-    sign = signature[0] - signature[1]
+    while run.is_set():
+        cuts = qform.random_diagram(g, n)
+        random_Q = qform.intersection_form(g, qform.intersection_data(g, cuts))
+        # determinant = random_Q.determinant()
+        definiteness = qform.definiteness(random_Q)
+        parity = qform.parity(random_Q)
+        signature = qform.signature(random_Q)
+        sign = signature[0] - signature[1]
 
-    if parity == 'odd':
-        print(f'Cuts = {cuts}\nQ =\n{random_Q}')
-        print(f'Q = {signature[0]}<1> + {signature[1]}<-1>')
-        print()
-    if parity =='even':
         print(f'Definiteness = {definiteness}')
         print(f'Parity = {parity}')
         print(f'Signature = {signature}, {sign}')
-        print(f'Q = {ZZ(sign / 8) if sign % 8 == 0 else 0}*E_8 + {n - sign}*[[0,1],[1,0]]\n')
-        if sign == 8:
-            print('*********')
-            print(f'Cuts = {cuts}\nQ =\n{random_Q}')
-            break
         print(f'Cuts = {cuts}\nQ =\n{random_Q}')
-        print()
-        #break
+        if parity == 'odd':
+            print(f'Q = {signature[0]}<1> + {signature[1]}<-1>')
+            print()
+        if parity =='even':
+            print(f'Q = {ZZ(sign / 8) if sign % 8 == 0 else 0}*E_8 + {n - sign}*[[0,1],[1,0]]\n')
+            if sign != 0 and sign % 8 == 0:
+                print('*************************')
+                run.clear()
+                return (random_Q, definiteness, signature, sign, cuts)
+            print()
 
-    if definiteness != 'indefinite':
-        break
+        #if sign == -4:
+        #    print("***********")
+        #    run.clear()
+        #    return
 
-    det1 = random_Q[0:2,0:2].determinant()
-    det2 = random_Q[2:4,2:4].determinant()
-    if (det1 == 1 or det1 == -1) and (det2 == 1 or det2 == -1) and definiteness != 'indefinite':
-        break
+        # if sign != 0 and sign % 8 == 0:
+        #     run.clear()
+        #     print("***************")
+        #     return (random_Q, definiteness, signature, sign, cuts)
+
+        # if definiteness != 'indefinite':
+        #     run.clear()
+        #     print("***************")
+        #     return (random_Q, definiteness, signature, sign, cuts)
+
+if __name__ == '__main__':
+    processes = []
+    manager = multiprocessing.Manager()
+    return_code = manager.dict()
+    run = manager.Event()
+    run.set()
+    for i in range(16):
+        process = multiprocessing.Process(target=f, args=[run])
+        processes.append(process)
+        process.start()
+
+    for process in processes:
+        process.join()

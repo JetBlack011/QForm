@@ -1,7 +1,7 @@
-\section{Week of 6/20: Mainly Lots of Examples}
+\section{Week of 6/20 and 6/27: Mainly Lots of Examples}
 
 \subsection*{Goals and Overview}
-Two of our main goals this week were to
+Two of our main goals were to
 \begin{enumerate}
 	\item Put together the Heegaard diagrams for integer homology spheres we had found to form new multisection diagrams for which we can compute invariants (e.g. intersection form).
 	\item Find methods for generating many such examples quickly, either in the form of Heegaard diagrams or multisections.
@@ -11,7 +11,7 @@ These goals led to fruitful examples and inquiries into the structures we're dea
 
 \subsection{Investigating a Nontrivial $4$-section}
 
-Until now, we have found a number of families of Heegaard diagrams representing integer homology spheres. This week, we managed to string them together in such a way that they formed an interesting $4$-section diagram.
+Until now, we have found a number of families of Heegaard diagrams representing integer homology spheres. We managed to string them together in such a way that they formed an interesting $4$-section diagram.
 \begin{figure}[H]
     \centering
     \incfig[.8]{4-section}
@@ -48,7 +48,7 @@ This question led us to investigate the homology spheres that are already well k
 In this project, we are interested in the properties of the intersection forms of different genus $g$ multisections, especially the minimal $g$ required to get certain forms. It would be fascinating if we could find a genus $2$ multisection whose intersection form is $E_8$, as according to the classification of symmetric bilinear forms, this would tell us a lot about the previous question.
 
 Freedman tells us some essential facts about intersection forms and which manifolds might have such forms. In particular,
-\begin{theorem}
+\begin{theorem}[Freedman's Theorem]
 	For each symmetric bilinear unimodular form $Q$ over $\Z$, there exists a closed oriented simply-connected topological $4$-manifold with $Q$ as its intersection form. If $Q$ is even, there is exactly one, and if $Q$ is odd, there are exactly two, at least one of which is nonsmoothable\footnote{todo: Cite Morgan Weiler's notes and/or Freedman's paper}.
 \end{theorem}
 Furthermore, there is a well-known topological manifold whose intersection form is (the Cartan matrix for) $E_8$, called the \textit{$E_8$ manifold}. Given the above theorem and the fact that the $E_8$ manifold has intersection form $E_8$ by construction, this is the unique such manifold. The $E_8$ manifold is constructed as follows: take Freedman's plumbing construction to obtain $M_{E_8}$ such that $\partial M_{E_8}$ is a homology sphere, and glue a fake $4$-ball along this boundary. It turns out that this homology sphere is the Poincar\'e homology sphere\footnote{todo: Cite Morgan Weiler's notes}; this is one of the reasons it is such an important example in this project.
@@ -73,29 +73,133 @@ It is a natural question then, does the converse hold? That is, between any two 
 \subsubsection*{Requisite Results}
 We first begin with some basic results from linear symplectic geometry over (free) $\Z$-modules. Consider the symplectic module $(V = \Z^{2g}, \omega)$\footnote{todo: Background? How much of this has been covered already?} .
 \begin{theorem}
-	For any Lagrangian subspace $L_1$ of $V$, there exists a \textit{complementary} or \textit{dual} Lagrangian subspace $L_2$ such that $L_1 \oplus L_2 = V$. Moreover, a choice of basis $(x_1,\dots,x_g)$ of $L_1$ determines a dual basis $(y_1,\dots,y_g)$ for a complement $L_2$ by $\omega(x_i, y_j) = \delta_{ij}$. Taken together, these bases form a \textit{symplectic basis} for $V$. 
+	For any Lagrangian subspace $L_1$ of $V$, there exists a \textit{complementary} or \textit{dual} Lagrangian subspace $L_2$ such that $L_1 \oplus L_2 = V$. Moreover, a choice of basis $x_1,\dots,x_g$ of $L_1$ determines a dual basis $y_1,\dots,y_g$ for a complement $L_2$ by $\omega(x_i, y_j) = \delta_{ij}$. Taken together, these bases form a \textit{symplectic basis} for $V$. 
 \end{theorem}
 
 \begin{proposition}
-	If $L_1,L_2$ and $L_1',L_2'$ are pairs of complementary Lagrangian subspaces and $T \in \GL(V)$ such that $L_1 \mapsto L_1'$ and $L_2 \mapsto L_2'$, then $T$ is a symplectic map.
+	\label{prp:lagrangian_unimodular}
+	Observe, any Lagrangian subspace $L$ of $V$ spans a sublattice of a unimodular $g$-dimensional lattice $\Lambda$ (since the dimension of any Lagrangian subspace is $g/2 = g$). If $L$ is Lagrangian, then $L = \Lambda$; that is, $L$ is full\footnote{Right word?}.
 \end{proposition}
 \begin{proof}
-	Fix a symplectic basis $(x_1,\dots,x_g,y_1,\dots,y_g)$ for $V$ given by the pair $L_1,L_2$. Then it is not hard to see that $T$ induces a symplectic basis $(x_1',\dots,x_g',y_1',\dots,y_g')$ given by $L_1',L_2'$, namely 
-\end{proof}
-
-
-\begin{proposition}
-	For any Lagrangian subspace $L$ of $\Z^{2g}$, there exists a linear isomorphism (which, in this case, is unimodular) $T: \Z^{2g} \to \Z^{2g}$ such that $T(L_1) = L$.
-\end{proposition}
-\begin{proof}
-	
+	Suppose for contradiction that $L \subsetneq \Lambda$ and that $L$ is Lagrangian. Since $\Lambda$ is unimodular, there exists a basis $a_1,\dots,a_g$ of $\Lambda$ such that the Gram matrix of $\Lambda$ in terms of this basis has determinant $\pm 1$. Of course, there must exist some $a_i \notin L$, as otherwise $L = \Lambda$. Moreover, there exists some $\lambda \in \Z$ such that $\lambda a_i \in L$. Thus, since $\omega(x, \lambda a_i) = 0$ for all $x \in L$, we can conclude that $\omega(x, a_i) = 0$, and thus $a_i \in L^\omega$. But this is a contradiction, as since $a_i \notin L$ but $a_i \in L^\omega$, we have that $L \neq L^\omega$, and $L$ is not Lagrangian.
 \end{proof}
 
 \begin{corollary}
-	For any two Lagrangian subspaces $L,L'$ of $\Z^{2g}$, there exists a unimodular map $T$ such that $T(L) = L'$.
+	For any two Lagrangian subspaces $L,L'$ of $V$, there exists some $T \in \GL_{2g}(\Z)$ such that $T(L) = L'$.
 \end{corollary}
 
+\begin{proposition}
+	If $L_1,L_2$ and $L_1',L_2'$ are pairs of complementary Lagrangian subspaces, then there exists some $T \in \Sp_{2g}(\Z)$ such that $T(L_1) = L_1'$ and $T(L_2) = L_2'$.
+\end{proposition}
 \begin{proof}
-	
+	Fix a symplectic basis $x_1,\dots,x_g,y_1,\dots,y_g$ and $x_1',\dots,x_g',y_1',\dots,y_g'$ for $L_1 \oplus L_2$ and $L_1' \oplus L_2'$, respectively. Then since each of $L_1,L_2,L_1'$, and $L_2'$ are unimodular, the map $T$ with $x_i \mapsto x_i'$ and $y_i \mapsto y_i'$ is clearly symplectic, as $T$ is a linear isomorphism and $T^*\omega = \omega$.
 \end{proof}
 
+\begin{corollary}
+	\label{cor:symplectic_existence}
+	Between any two Lagrangian subspaces $L,L'$ of $V$, there exists a symplectic map $T: L \to L'$. Conversely, for any symplectic transformation $T \in \Sp_{2g}(\Z)$, the image of some Lagrangian subspace $L$ under $T$ is again Lagrangian.
+\end{corollary}
+
+\begin{definition}
+	A \textit{geometric realization} of a symplectic basis $x_1,\dots,x_g,y_1,\dots,y_g$ is an ordered sequence $(\alpha_1,\dots,\alpha_g,\beta_1,\dots,\beta_g)$ of oriented simple closed curves such that
+	\begin{enumerate}
+		\item $[\alpha_i] = x_1$ and $[\beta_i] = y_i$ for all $1 \leq i \leq g$.
+		\item $\alpha_i \cdot \alpha_j = \beta_i \cdot \beta_j = 0$ and $\alpha_i \cdot \beta_j = \delta_{i,j}$ for all $1 \leq i,j \leq g$.
+	\end{enumerate}
+	Informally, this means that the curves on $\Sigma_g$ and their algebraic intersection numbers agrees with their homology classes and intersection pairing.
+\end{definition}
+
+\begin{definition}
+	An element $x \in H_1(\Sigma_g)$ is \textit{primitive} if it cannot be written as $x = \lambda x'$ for some $x' \in H_1(\Sigma)$ and $n \geq 2$. 
+\end{definition}
+
+\begin{lemma}
+	\label{lem:primitive_element}
+	A nonzero $x \in H_1(\Sigma_g)$ can be written as $x = [\gamma]$ for some simple closed curve $\gamma$ if and only if $x$ is primitive.
+\end{lemma}
+\begin{proof}
+	\footnote{Cite Putman}
+\end{proof}
+
+\begin{theorem}
+	Every symplectic basis for $H_1(\Sigma_g)$ has a geometric realization.
+\end{theorem}
+\begin{proof}
+	This is a consequence of \autoref{lem:primitive_element} and \autoref{prp:lagrangian_unimodular} --- A basis of a unimodular lattice necessarily consists of primitive elements, hence these basis elements have a geometric realization. An alternative, full proof can be seen in \footnote{Cite Putman}.
+\end{proof}
+
+Knowing now that we can go from one Lagrangian subspace to any other via a symplectic transformation (and that any symplectic transformation sends Lagrangians to Lagrangians) by \autoref{cor:symplectic_existence}, the structure of $\Sp_{2g}(\Z)$ becomes very important to us. These observations yield a promising avenue for generating diagrams algorithmically; certain symplectic transformations may now give us geometric realizations of complementary Lagrangian subspaces, and these may correspond to valid multisection diagrams. First though, we must understand which symplectic transformations give us these diagrams, and how we might go about choosing them.
+
+Fix the standard $L_1,L_2$. Observe, by the reasoning above, these are geometrically realized by the standard $\alpha$ and $\beta$ cut systems\footnote{Insert diagram}. For any $T \in \Sp_{2g}(\Z)$, we know now that $T(L_1)$ and $T(L_2)$ are necessarily complementary Lagrangian subspaces. This is one direction we might pursue: the only condition placed on $T$ is that it is not the identity map, and so a computer could generate these examples fairly quickly. However, in order to form a valid diagram, $L_2, T(L_1)$ and $T(L_2), L_1$ must also be complementary. This is much harder to enforce, especially if we were to choose more than one symplectic transformation.
+
+As such, it may be better to generate Lagrangian subspaces in an ``ascending'' order rather than randomly, first generating a complement to $L_2$ via some map $T_1$, then a complement to $T_1(L_2)$ via some $T_2$, and so on. This way, we need only generate Lagrangian subspaces whose union is unimodular, until the last space which we must guarantee is complementary to $L_1$. This places significantly less restriction on the symplectic transformations we can use, and turns out to be computationally feasible.
+
+\subsubsection{Structure of $\Sp_{2g}(\Z)$}
+
+With this plan in mind, we need to be able to choose random elements of $\Sp_{2g}(\Z)$ for any $\Z$. Luckily, in 1890, Burkhardt gave the following generators for $\Sp_4(\Z)$: 
+\begin{description}
+	\item[Swap] $(x_1, x_2, y_1, y_2) \mapsto (x_1 + y_1, x_2, y_1, y_2)$
+	\item[Rotation] $(x_1, x_2, y_1, y_2) \mapsto (y_1, x_2, -x_1, y_2)$
+	\item[Mix] $(x_1, x_2, y_1, y_2) \mapsto (x_1 - y_2, x_2 - y_1, y_1, y_2)$
+	\item[Transvection/Shear] $(x_1, x_2, y_1, y_2) \mapsto (x_1 + y_1, x_2, y_1, y_2)$.
+\end{description}
+Additionally, it is not difficult to generalize this finite set of generators to $\Sp_{2g}(\Z)$ for arbitrary $g$.
+\begin{definition}
+	Similar to how $\SL_n(\Z)$ is generated by elementary matrices, it turns out that $\Sp_{2g}(\Z)$ is generated by \textit{elementary symplectic matrices}. Let $\sigma \in S_{2g}$ be given by $2i \leftrightarrow 2i - 1$ for each $1 \leq i \leq g$. Then if $E_{i,j}$ is the matrix with a $1$ in the $(i,j)$-th entry and $0$s elsewhere, the symplectic elementary matrices is the set of matrices \[SE_{i,j} = \begin{cases}
+		I_{2g} + e_{i,j} & \text{If $i = \sigma(j)$}\\
+		I_{2g} + e_{i,j} - (-1)^{i + j}e_{\sigma(j),\sigma(i)} & \text{Otherwise}
+	\end{cases}\] for $1 \leq i,j \leq 2g$ and $i \neq j$.
+\end{definition}
+
+\begin{theorem}
+	$\Sp_{2g}(\Z)$ is generated by elementary symplectic matrices\footnote{Cite Farb's Mapping Class Group book}.
+\end{theorem}
+
+We are now ready to describe the algorithm for generating random genus $g$ $n$-sections.
+\begin{enumerate}
+	\item Fix the standard $L_1,L_2$ corresponding to the standard cut systems.
+	\item Choose some symplectic transformation $T \in \Sp_{2g}(\Z)$ such that $L_2 \oplus T(L_2) = H_1(\Sigma_g)$. Computationally, this is not terribly difficult, since the majority of Lagrangian subspaces will be complementary to $L_2$.
+	\item Repeat this process with the image of $L_2$ under $T$, until we have the algebraic multisection $L_1, \dots, L_n$.
+	\item If $L_n$ and $L_1$ are not complementary, choose different symplectic transformations to apply to $L_{n - 1}$ until this condition is met.
+	\item Take the geometric realization of each adjacent pair of Lagrangian subspaces to arrive at our genus $g$ $n$-section.
+\end{enumerate}
+
+We can now take the algebraic data we have and compute the intersection form.
+
+\subsection{Results}
+
+So far, we have found many examples of genus $g$ multisections. We are particularly interested in what non-isomorphic intersection forms are achievable in the genus $2$ case. The following table are some of the generated examples:
+\begin{center}
+	\begin{tabular}{|c|c|c|c|c|c|c|}
+		\hline
+		\# & $n$ & $n$-section & $Q$ & Signature & Parity\\% & Identification\\
+		\hline
+		I & $3$ & \parbox{4.25cm}{\begin{align*}
+			\gamma_{3,1} &= -\alpha_1 + 2\beta_1 + 3\beta_2\\
+			\gamma_{3,2} &= -2\alpha_1 + \alpha_2 + \beta_1 + \beta_2\\
+		\end{align*}} & $\begin{bmatrix} -2 & -1\\-1 & -1 \end{bmatrix}$ & $(0,2)$ & Odd\\% & $Q = 0\left<1\right> \oplus 2\left<-1\right>$\\
+		\hline
+		II & $3$ & \parbox{4.25cm}{\begin{align*}
+			\gamma_{3,1} &= \alpha_2 + \beta_1\\
+			\gamma_{3,2} &= \alpha_1 + \alpha_2 + \beta_2
+		\end{align*}} & $\begin{bmatrix} 0 & 1\\1 & 1 \end{bmatrix}$ & $(1,1)$ & Odd\\% & $Q = 1\left<1\right> \oplus 1\left<-1\right>$\\
+		\hline
+		III & $3$ & \parbox{4.25cm}{\begin{align*}
+			\gamma_{3,1} &= \alpha_1 + 2\beta_1 + \beta_2\\
+			\gamma_{3,2} &= \alpha_2 + \beta_1 + \beta_2
+		\end{align*}} & $\begin{bmatrix} 2 & 1\\1 & 1 \end{bmatrix}$ & $(1,1)$ & Odd\\% & $Q = 1\left<1\right> \oplus 1\left<-1\right>$\\
+		\hline
+		IV & $3$ & \parbox{4.25cm}{\begin{align*}
+			\gamma_{3,1} &= \alpha_2 + \beta_1\\
+			\gamma_{3,2} &= \alpha_1 + \beta_2
+		\end{align*}} & $\begin{bmatrix} 0 & 1\\1 & 0 \end{bmatrix}$ & $(1,1)$ & Even\\% & $Q = 1\left<1\right> \oplus 1\left<-1\right>$\\
+		\hline
+		V & $4$ & \parbox{4.25cm}{\begin{align*}
+			\gamma_{3,1} &= -\alpha_1 - 2\alpha_2 + 3\beta_2\\
+			\gamma_{3,2} &= -\alpha_1 - \alpha_2 + \beta_1 + \beta_2\\
+			\gamma_{4,1} &= 2\alpha_1 - 3\alpha_2 - \beta_1 + 3\beta_2\\
+			\gamma_{4,2} &= -\alpha_2 + \beta_2
+		\end{align*}} & $\begin{bmatrix} -6 & -3 & -5 & -2\\-3 & -2 & -2 & -1\\-5 & -2 & -11 & -3\\-2 & -1 & -3 & -1 \end{bmatrix}$ & $(0,4)$ & Odd\\ % & $Q = 1\left<1\right> \oplus 1\left<-1\right>$\\
+		\hline
+	\end{tabular}
+\end{center}
