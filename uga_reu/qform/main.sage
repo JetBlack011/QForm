@@ -70,33 +70,34 @@ mats = [
 #print(f'Parity: {qform.parity(Q)}\n')
 
 def f(run):
-    n = 6
+    n = 1
     g = 2
 
     while run.is_set():
         cuts = qform.random_diagram(g, n)
-        random_Q = qform.intersection_form(g, qform.intersection_data(g, cuts))
-        # determinant = random_Q.determinant()
-        definiteness = qform.definiteness(random_Q)
-        parity = qform.parity(random_Q)
-        signature = qform.signature(random_Q)
+        Q = qform.intersection_form(g, qform.intersection_data(g, cuts))
+        # determinant = Q.determinant()
+        definiteness = qform.definiteness(Q)
+        parity = qform.parity(Q)
+        signature = qform.signature(Q)
         sign = signature[0] - signature[1]
 
         print(f'Definiteness = {definiteness}')
         print(f'Parity = {parity}')
         print(f'Signature = {signature}, {sign}')
-        print(f'Cuts = {cuts}\nQ =\n{random_Q}')
+        print(f'Cuts = {cuts}\nQ =\n{Q}')
         if parity == 'odd':
             print(f'Q = {signature[0]}<1> + {signature[1]}<-1>')
             print()
-        if parity =='even':
+        if Q == matrix([[2,-1],[-1,2]]):
+#            if sign != 0 and sign % 8 == 0:
             print(f'Q = {ZZ(sign / 8) if sign % 8 == 0 else 0}*E_8 + {n - sign}*[[0,1],[1,0]]\n')
-            if sign != 0 and sign % 8 == 0:
-                print('*************************')
-                run.clear()
-                return (random_Q, definiteness, signature, sign, cuts)
+            print('*************************')
+            run.clear()
+            return (Q, definiteness, signature, sign, cuts)
             print()
 
+        return
         #if sign == -4:
         #    print("***********")
         #    run.clear()
@@ -105,12 +106,12 @@ def f(run):
         # if sign != 0 and sign % 8 == 0:
         #     run.clear()
         #     print("***************")
-        #     return (random_Q, definiteness, signature, sign, cuts)
+        #     return (Q, definiteness, signature, sign, cuts)
 
         # if definiteness != 'indefinite':
         #     run.clear()
         #     print("***************")
-        #     return (random_Q, definiteness, signature, sign, cuts)
+        #     return (Q, definiteness, signature, sign, cuts)
 
 if __name__ == '__main__':
     processes = []
@@ -118,7 +119,7 @@ if __name__ == '__main__':
     return_code = manager.dict()
     run = manager.Event()
     run.set()
-    for i in range(16):
+    for i in range(1):
         process = multiprocessing.Process(target=f, args=[run])
         processes.append(process)
         process.start()

@@ -89,6 +89,7 @@ def _compute_q_form(I, ker):
                     s += (e1[k] * e2[l]) * I[k][l]
             Q[i,j] = s
 
+
     assert Q.is_symmetric(), \
             "Intersection form is not symmetric, this likely means the kernel "\
             "was generated incorrectly"
@@ -107,10 +108,7 @@ def intersection_data(g, cuts):
     default this is J
     :return: A block matrix of intersection data
     """
-    B = matrix.identity(2 * g)
     J = _J(g)
-
-    dim = len(cuts) - 1
     I = matrix(len(cuts) * 2)
 
     for i in range(I.nrows()):
@@ -146,8 +144,10 @@ def intersection_form(g, mats):
             "Intersection blocks don't fit into skew-symmetric matrix"
 
     blocks,I,n,B = _build_intersection_matrix(g, mats)
+    print(I)
     #print(f'Intersection matrix:\n{I}\n')
     ker = _build_kernel_generators(g, blocks, B, n)
+    print(ker)
     #print(f'Kernel generators:\n{matrix(ZZ, ker)}\n')
 
     return _compute_q_form(I, ker)
@@ -233,6 +233,7 @@ def random_diagram(g, n):
     the first two being the standard alpha and beta cut systems.
     """
     B = matrix.identity(2 * g)
+    B = matrix([[1, 0, 1, 0], [0, 1, 0, -1], [-1, 0, -1, 1], [0, -1, 1, 0]])
 
     limit = 100
 
@@ -246,7 +247,8 @@ def random_diagram(g, n):
                 l += 1
                 symp_map = random_symplectic_matrix(g, 50)[0]
                 image = [symp_map * cuts[-1][i] for i in range(g)]
-                det = matrix(cuts[-1] + image).determinant()
+                #det = matrix(cuts[-1] + image).determinant()
+                det = intersection_data(g, [cuts[-1], image])[0].determinant()
                 if det == 1 or det == -1:
                     break
             limit_flag = limit_flag and l < limit
@@ -257,8 +259,10 @@ def random_diagram(g, n):
             l += 1
             symp_map = random_symplectic_matrix(g, 50)[0]
             image = [symp_map * cuts[-1][i] for i in range(g)]
-            det1 = matrix(cuts[-1] + image).determinant()
-            det2 = matrix(image + cuts[0]).determinant()
+            # det1 = matrix(cuts[-1] + image).determinant()
+            # det2 = matrix(image + cuts[0]).determinant()
+            det1 = intersection_data(g, [cuts[-1], image])[0].determinant()
+            det2 = intersection_data(g, [image, cuts[0]])[0].determinant()
 
             if (det1 == 1 or det1 == -1) and (det2 == 1 or det2 == -1):
                 break
@@ -268,6 +272,7 @@ def random_diagram(g, n):
         if limit_flag:
             break
 
+    print(intersection_data(2, cuts)[0])
     return cuts
 
 if __name__ == "__main__":

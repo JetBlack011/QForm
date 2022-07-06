@@ -95,6 +95,7 @@ def _compute_q_form(I, ker):
                     s += (e1[k] * e2[l]) * I[k][l]
             Q[i,j] = s
 
+
     assert Q.is_symmetric(), \
             "Intersection form is not symmetric, this likely means the kernel "\
             "was generated incorrectly"
@@ -113,10 +114,7 @@ def intersection_data(g, cuts):
     default this is J
     :return: A block matrix of intersection data
     """
-    B = matrix.identity(_sage_const_2  * g)
     J = _J(g)
-
-    dim = len(cuts) - _sage_const_1 
     I = matrix(len(cuts) * _sage_const_2 )
 
     for i in range(I.nrows()):
@@ -152,8 +150,10 @@ def intersection_form(g, mats):
             "Intersection blocks don't fit into skew-symmetric matrix"
 
     blocks,I,n,B = _build_intersection_matrix(g, mats)
+    print(I)
     #print(f'Intersection matrix:\n{I}\n')
     ker = _build_kernel_generators(g, blocks, B, n)
+    print(ker)
     #print(f'Kernel generators:\n{matrix(ZZ, ker)}\n')
 
     return _compute_q_form(I, ker)
@@ -239,6 +239,7 @@ def random_diagram(g, n):
     the first two being the standard alpha and beta cut systems.
     """
     B = matrix.identity(_sage_const_2  * g)
+    B = matrix([[_sage_const_1 , _sage_const_0 , _sage_const_1 , _sage_const_0 ], [_sage_const_0 , _sage_const_1 , _sage_const_0 , -_sage_const_1 ], [-_sage_const_1 , _sage_const_0 , -_sage_const_1 , _sage_const_1 ], [_sage_const_0 , -_sage_const_1 , _sage_const_1 , _sage_const_0 ]])
 
     limit = _sage_const_100 
 
@@ -252,7 +253,8 @@ def random_diagram(g, n):
                 l += _sage_const_1 
                 symp_map = random_symplectic_matrix(g, _sage_const_50 )[_sage_const_0 ]
                 image = [symp_map * cuts[-_sage_const_1 ][i] for i in range(g)]
-                det = matrix(cuts[-_sage_const_1 ] + image).determinant()
+                #det = matrix(cuts[-1] + image).determinant()
+                det = intersection_data(g, [cuts[-_sage_const_1 ], image])[_sage_const_0 ].determinant()
                 if det == _sage_const_1  or det == -_sage_const_1 :
                     break
             limit_flag = limit_flag and l < limit
@@ -263,8 +265,10 @@ def random_diagram(g, n):
             l += _sage_const_1 
             symp_map = random_symplectic_matrix(g, _sage_const_50 )[_sage_const_0 ]
             image = [symp_map * cuts[-_sage_const_1 ][i] for i in range(g)]
-            det1 = matrix(cuts[-_sage_const_1 ] + image).determinant()
-            det2 = matrix(image + cuts[_sage_const_0 ]).determinant()
+            # det1 = matrix(cuts[-1] + image).determinant()
+            # det2 = matrix(image + cuts[0]).determinant()
+            det1 = intersection_data(g, [cuts[-_sage_const_1 ], image])[_sage_const_0 ].determinant()
+            det2 = intersection_data(g, [image, cuts[_sage_const_0 ]])[_sage_const_0 ].determinant()
 
             if (det1 == _sage_const_1  or det1 == -_sage_const_1 ) and (det2 == _sage_const_1  or det2 == -_sage_const_1 ):
                 break
@@ -274,6 +278,7 @@ def random_diagram(g, n):
         if limit_flag:
             break
 
+    print(intersection_data(_sage_const_2 , cuts)[_sage_const_0 ])
     return cuts
 
 if __name__ == "__main__":
