@@ -43,26 +43,25 @@ def _build_intersection_matrix(g, mats):
             base_blocks[i].append(blocks[i][j])
 
     I = block_matrix(blocks)
-    B = block_matrix(base_blocks)
-
-    #print(f'Intersection matrix:\n{I}\n')
+    P = block_matrix(base_blocks)
 
     assert I.is_skew_symmetric(), "Intersection matrix is not skew-symmetric"
 
-    #print(f'{A}\n')
-
-    return (blocks,I,n,B)
+    return (blocks,I,n,P)
 
 def _all_integers(v):
     return all(list(map(lambda x: x.is_integer(), v)))
 
-def _build_kernel_generators(g, blocks, B, n):
+def _is_unimodular(M):
+    return M.determinant() == 1 or M.determinant() == -1
+
+def _build_kernel_generators(g, blocks, P, n):
     # Build the kernel of our map
     ker = np.zeros((g * (n - 2), g * n))
 
     for i in range(2, n):
         for j in range(g):
-            coeffs = B.inverse() * vector(QQ, [blocks[i][k][j][l]
+            coeffs = P.inverse() * vector(QQ, [blocks[i][k][j][l]
                 for k in range(2) for l in range(g)])
             a = 1 if _all_integers(coeffs) else 1 / reduce(gcd, coeffs) 
             coeffs = a * coeffs
@@ -71,8 +70,8 @@ def _build_kernel_generators(g, blocks, B, n):
                     "Kernel generators cannot be given in integer coefficients"
 
             e = g * (i - 2) + j
-            ker[e,:g * 2] = coeffs
-            ker[e,e + g * 2] = a
+            ker[e,:g*2] = coeffs
+            ker[e,e+g*2] = a
             ker[e] = list(map(int, ker[e]))
 
     return ker
@@ -89,37 +88,9 @@ def _compute_q_form(I, ker):
                     s += (e1[k] * e2[l]) * I[k][l]
             Q[i,j] = s
 
-
-    assert Q.is_symmetric(), \
-            "Intersection form is not symmetric, this likely means the kernel "\
-            "was generated incorrectly"
+    assert Q.is_symmetric(), "Intersection form must be symmetric"
 
     return Q
-
-def intersection_data(g, cuts):
-    """
-    Given some elements of (?), find the intersection data using
-    basis B.
-    :param T: Basis of Lagrangian decomposition in the form of a symplectic
-    matrix
-    :param B: Initial Lagrangian decomposition, by default this is the 4x4
-    identity matrix
-    :param M: The (symplectic) intersection pairing for the given basis, by
-    default this is J
-    :return: A block matrix of intersection data
-    """
-    J = _J(g)
-    I = matrix(len(cuts) * 2)
-
-    for i in range(I.nrows()):
-        for j in range(I.ncols()):
-            I[i,j] = (matrix(cuts[i//g][i%g]) * J * cuts[j//g][j%g])[0]
-    
-    mats = [I[i:i+g,j:j+g]
-            for i in range(0, I.nrows() - g, g)
-            for j in range(i + g, I.ncols(), g)]
-    
-    return mats
 
 def intersection_form(g, mats):
     """
@@ -143,11 +114,9 @@ def intersection_form(g, mats):
     assert _uncount(len(mats)).is_integer(), \
             "Intersection blocks don't fit into skew-symmetric matrix"
 
-    blocks,I,n,B = _build_intersection_matrix(g, mats)
-    print(I)
+    blocks,I,n,P = _build_intersection_matrix(g, mats)
     #print(f'Intersection matrix:\n{I}\n')
-    ker = _build_kernel_generators(g, blocks, B, n)
-    print(ker)
+    ker = _build_kernel_generators(g, blocks, P, n)
     #print(f'Kernel generators:\n{matrix(ZZ, ker)}\n')
 
     return _compute_q_form(I, ker)
@@ -168,6 +137,31 @@ def definiteness(B):
 def parity(B):
     Q = QuadraticForm(ZZ, B + B.transpose())
     return Q.parity()
+
+def cuts_to_intersection(g, cuts):
+    """
+    Given some elements of (?), find the intersection data using
+    basis B.
+    :param T: Basis of Lagrangian decomposition in the form of a symplectic
+    matrix
+    :param B: Initial Lagrangian decomposition, by default this is the 4x4
+    identity matrix
+    :param M: The (symplectic) intersection pairing for the given basis, by
+    default this is J
+    :return: A block matrix of intersection data
+    """
+    J = _J(g)
+    I = matrix(len(cuts) * 2)
+
+    for i in range(I.nrows()):
+        for j in range(I.ncols()):
+            I[i,j] = (matrix(cuts[i//g][i%g]) * J * cuts[j//g][j%g])[0]
+    
+    mats = [I[i:i+g,j:j+g]
+            for i in range(0, I.nrows() - g, g)
+            for j in range(i + g, I.ncols(), g)]
+    
+    return mats
 
 def _ESMs(g):
     global ESM_dict
@@ -225,46 +219,61 @@ def random_symplectic_matrix(g, p):
 def random_unimodular_matrix(n):
     matrix_space = sage.matrix.matrix_space.MatrixSpace(ZZ, n)
     return sage.matrix.constructor.random_unimodular_matrix(matrix_space,
-            upper_bound=3)
+            upper_bound=10)
 
-def random_diagram(g, n):
+def random_diagram(g, n, limit=100):
     """
     Generate a random genus 2 multisection diagram with n + 2 cut systems,
     the first two being the standard alpha and beta cut systems.
     """
+    assert n >= 2, "n should be >= 2"
+
+    x = 10
     B = matrix.identity(2 * g)
-    B = matrix([[1, 0, 1, 0], [0, 1, 0, -1], [-1, 0, -1, 1], [0, -1, 1, 0]])
-
-    limit = 100
-
+    
     while True:
         limit_flag = True
         cuts = [[B.column(i + j) for j in range(g)] for i in range(0, B.ncols(), g)]
 
-        for _ in range(n - 1):
+        for i in range(len(cuts)):
+            cuts[i] = list(map(vector, cuts[i]))
+
+        while len(cuts) < n - 1:
             l = 0
-            while True and l < limit:
+            while l < limit:
                 l += 1
-                symp_map = random_symplectic_matrix(g, 50)[0]
+                symp_map = random_symplectic_matrix(g, x)[0]
                 image = [symp_map * cuts[-1][i] for i in range(g)]
-                #det = matrix(cuts[-1] + image).determinant()
-                det = intersection_data(g, [cuts[-1], image])[0].determinant()
-                if det == 1 or det == -1:
+                # det2 = matrix(image + cuts[0]).determinant()
+                # #det = cuts_to_intersection(g, [cuts[-1], image])[0].determinant()
+                Q = intersection_form(g, cuts_to_intersection(g, cuts + [image]))
+                diagonal = Q.numpy().diagonal()
+                b = 2 * (len(cuts) - 1)
+                block = Q[:b,:b]
+
+                if _is_unimodular(matrix(cuts[-1] + image)) and all(map(is_even, diagonal)) and not _is_unimodular(block):
                     break
             limit_flag = limit_flag and l < limit
             cuts.append(image)
 
         l = 0
-        while True and l < limit:
+        while l < limit:
             l += 1
-            symp_map = random_symplectic_matrix(g, 50)[0]
+            symp_map = random_symplectic_matrix(g, x)[0]
             image = [symp_map * cuts[-1][i] for i in range(g)]
-            # det1 = matrix(cuts[-1] + image).determinant()
-            # det2 = matrix(image + cuts[0]).determinant()
-            det1 = intersection_data(g, [cuts[-1], image])[0].determinant()
-            det2 = intersection_data(g, [image, cuts[0]])[0].determinant()
+            #det1 = cuts_to_intersection(g, [cuts[-1], image])[0].determinant()
+            #det2 = cuts_to_intersection(g, [image, cuts[0]])[0].determinant()
+            Q = intersection_form(g, cuts_to_intersection(g, cuts + [image]))
+            diagonal = Q.numpy().diagonal()
+            # d = definiteness(Q)
+            #is_connect_sum = False
+            blocks = [Q[:i,:i] for i in range(2, Q.nrows() - 2, 2)]
 
-            if (det1 == 1 or det1 == -1) and (det2 == 1 or det2 == -1):
+            #for A in blocks:
+            #    if A.determinant() == 1 or A.determinant() == -1:
+            #        is_connect_sum = True
+
+            if _is_unimodular(matrix(cuts[-1] + image)) and _is_unimodular(matrix(image + cuts[0])) and all(map(is_even, diagonal)):
                 break
         cuts.append(image)
 
@@ -272,7 +281,6 @@ def random_diagram(g, n):
         if limit_flag:
             break
 
-    print(intersection_data(2, cuts)[0])
     return cuts
 
 if __name__ == "__main__":
