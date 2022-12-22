@@ -7,6 +7,10 @@ import multiprocessing
 # Genus
 g = 2
 
+# How many processes to run this computation on
+process_count = 1
+
+# The intersection blocks
 mats = [
     [[1,0],[0,1]],
     [[0,-1],[1,1]],
@@ -70,11 +74,13 @@ mats = [
 #print(f'Parity: {qform.parity(Q)}\n')
 
 def f(run):
-    n = 6
+    n = 2
     g = 2
 
     while True:
         cuts = qform.random_diagram(g, n, limit=100)
+        print(cuts)
+        return
         Q = qform.intersection_form(g, qform.cuts_to_intersection(g, cuts))
         # determinant = Q.determinant()
         definiteness = qform.definiteness(Q)
@@ -146,7 +152,7 @@ if __name__ == '__main__':
     return_code = manager.dict()
     run = manager.Event()
     run.set()
-    for i in range(16):
+    for i in range(process_count):
         process = multiprocessing.Process(target=f, args=[run])
         processes.append(process)
         process.start()
