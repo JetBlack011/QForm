@@ -1,0 +1,20 @@
+\chapter*{Symplectic Forms and $4$-Manifolds}
+\addcontentsline{toc}{chapter}{Symplectic Forms and $4$-Manifolds}
+\section{Bilinear Forms}
+
+Recall, as computed in a previous exercise, $H_1(\Sigma_g) = \Z^{2g}$. Additionally, we have defined the \textit{intersection pairing} $\left< , \right>: H_1(\Sigma_g) \times H_1(\Sigma_g) \to \Z$ given by the algebraic intersection number on homology class representatives. For a general $(2n)$-manifold $X$, there exists an \textit{intersection product} $H_n(X) \times H_n(X) \to \Z$ such that \[\left< a,b \right> = (-1)^n\left< b,a \right>.\] 
+
+\subsection{Symmetric Bilinear Forms}
+
+\begin{theorem}
+	If $B$ is a symmetric bilinear form on $\R^n$, then up to base change, its matrix representation is of the form \[\begin{pmatrix} 1 &&&&&&&\\ &1&&&&&& \\ &&\ddots&&&&& \\ &&&0&&&& \\ &&&&0&&& \\ &&&&&\ddots&& \\ &&&&&&-1& \\ &&&&&&&-1 \end{pmatrix} \] containing $n_+$ ones, $n_0$ zeros, and $n_-$ negative ones, so that the matrix is $n \times n$ for $n = n_+ + n_0 + n_-$.
+\end{theorem}
+
+\begin{definition}[Non-Degenerate]
+	We say that $B(n)$ is \textit{non-degenerate} if $n_0 = 0$.
+\end{definition}
+\begin{definition}[Index/Signature]
+	The \textit{index/signature} is defined as either the difference $\sigma = n_+ - n_-$ or the ordered pair $(n_+,n_-)$. If $B$ is non-degenerate, then it is determined by $\sigma$.
+\end{definition}
+
+However, this story is not as clear-cut over $\Z$.
