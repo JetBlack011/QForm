@@ -62,13 +62,13 @@ def _uncount(l):
 
 def _build_intersection_matrix(g, mats):
     """
-    Go from len(mats) blocks to the n = _uncount(len(mats) + 1 dimensional
+    Go from len(mats) blocks to the n = _uncount(len(mats)) + 1 dimensional
     intersection matrix. This just takes the blocks of the intersection matrix
     and adds in the skew-symmetric side.
     :param int g: The genus of this multisection
     :param list[list[int]]: The intersection data of each cut system,
            as in intersection_form()
-    :return (list[list[int]], list[int], int, list[int]): In order:
+    :return (list[list[int]], matrix, int, matrix): In order:
            The blocks of the intersection matrix, for ease of computation.
            The intersection matrix itself --- curve i and curve j intersect exactly
            I_{i,j} times (signed) for 0 <= i,j < n.
@@ -101,7 +101,7 @@ def _build_intersection_matrix(g, mats):
 
     assert I.is_skew_symmetric(), "Intersection matrix is not skew-symmetric"
 
-    return (blocks,I,n,P)
+    return (blocks,I,n,P) # TODO: Make this less bad
 
 def _all_integers(v):
     return all(list(map(lambda x: x.is_integer(), v)))
@@ -111,7 +111,17 @@ def _is_unimodular(M):
 
 def _build_kernel_generators(g, blocks, P, n):
     """
-    Compute the generators of the kernel of 
+    Compute the generators of the kernel of a map arising from a certain
+    chain complex, namely the one expressed in terms of H_1(S_g) and 
+    intersections/direct sums of the Lagrangian subspaces corresponding to
+    the given cut systems. In particular, H_2(M) canonically identifies
+    with this kernel (where M is the 4-manifold given by this multisection).
+    :param int g: The genus of the multisection
+    :param list[list[int]] blocks: The pairwise intersection data of each
+           cut system
+    :param matirx P: The basis of H_1(S_g) in terms of the standard alpha,
+           beta cut systems
+    :param int n: The dimension of the intersection matrix
     """
     ker = np.zeros((g * (n - _sage_const_2 ), g * n))
 
@@ -295,14 +305,28 @@ def random_diagram(g, n, limit=_sage_const_100 ):
     the first two being the standard alpha and beta cut systems.
     :param int g: The genus of the cut system
     :param int n: The number of cut systems
-    :return list(matrix): The cut systems expressed in the standard
-           basis. The first two matrices will always be 
+    :return list[list[vector]: The cut systems expressed in the standard
+           basis. The first two cut systems will always be the identity.
     """
     assert n >= _sage_const_2 , "n should be >= 2"
 
     x = _sage_const_10 
-    B = matrix.identity(_sage_const_2  * g)
+    B = matrix.identity(_sage_const_2  * g) # The standard basis
     
+    """
+    What we do here is a bit awkward. The idea is to generate random symplectic
+    maps which land us in new valid cut systems when we act on the previous one.
+    However, it can be harder to generate valid maps for larger values (one
+    potential improvement to this design would be to check if certain cuts
+    can be reduced to known ones, but this is very hard, as it probably
+    involves understanding the resulting 4-manifold). In this case, it might take
+    a long while, or even forever, for this process to finish.
+    
+    So, we opt to use a limiting variable. If we get stuck on too many iterations,
+    we start over. Hence the loop. This has been tuned through many run-throughs
+    with reasonable values, but will not work for every application, especially
+    larger values of n and g.
+    """
     while True:
         limit_flag = True
         cuts = [[B.column(i + j) for j in range(g)] for i in range(_sage_const_0 , B.ncols(), g)]
@@ -310,7 +334,7 @@ def random_diagram(g, n, limit=_sage_const_100 ):
         for i in range(len(cuts)):
             cuts[i] = list(map(vector, cuts[i]))
 
-        while len(cuts) < n - _sage_const_1 :
+        while len(cuts) < n - _sage_const_1 : # Keep going until we have enough cuts
             l = _sage_const_0 
             while l < limit:
                 l += _sage_const_1 
@@ -324,10 +348,14 @@ def random_diagram(g, n, limit=_sage_const_100 ):
                 block = Q[:b,:b]
 
                 if _is_unimodular(matrix(cuts[-_sage_const_1 ] + image)) and all(map(is_even, diagonal)) and not _is_unimodular(block):
+                    # We found a valid one! Time to move on.
                     break
             limit_flag = limit_flag and l < limit
             cuts.append(image)
 
+        # The condition that neighboring cut systems form Lagrangian subspaces with respect
+        # to the intersection form wraps around. This second loops just checks that the last
+        # cut system we generate agrees with the first.
         l = _sage_const_0 
         while l < limit:
             l += _sage_const_1 

@@ -56,13 +56,13 @@ def _uncount(l):
 
 def _build_intersection_matrix(g, mats):
     """
-    Go from len(mats) blocks to the n = _uncount(len(mats) + 1 dimensional
+    Go from len(mats) blocks to the n = _uncount(len(mats)) + 1 dimensional
     intersection matrix. This just takes the blocks of the intersection matrix
     and adds in the skew-symmetric side.
     :param int g: The genus of this multisection
     :param list[list[int]]: The intersection data of each cut system,
            as in intersection_form()
-    :return (list[list[int]], list[int], int, list[int]): In order:
+    :return (list[list[int]], matrix, int, matrix): In order:
            The blocks of the intersection matrix, for ease of computation.
            The intersection matrix itself --- curve i and curve j intersect exactly
            I_{i,j} times (signed) for 0 <= i,j < n.
@@ -95,7 +95,7 @@ def _build_intersection_matrix(g, mats):
 
     assert I.is_skew_symmetric(), "Intersection matrix is not skew-symmetric"
 
-    return (blocks,I,n,P)
+    return (blocks,I,n,P) # TODO: Make this less bad
 
 def _all_integers(v):
     return all(list(map(lambda x: x.is_integer(), v)))
@@ -105,7 +105,17 @@ def _is_unimodular(M):
 
 def _build_kernel_generators(g, blocks, P, n):
     """
-    Compute the generators of the kernel of 
+    Compute the generators of the kernel of a map arising from a certain
+    chain complex, namely the one expressed in terms of H_1(S_g) and 
+    intersections/direct sums of the Lagrangian subspaces corresponding to
+    the given cut systems. In particular, H_2(M) canonically identifies
+    with this kernel (where M is the 4-manifold given by this multisection).
+    :param int g: The genus of the multisection
+    :param list[list[int]] blocks: The pairwise intersection data of each
+           cut system
+    :param matirx P: The basis of H_1(S_g) in terms of the standard alpha,
+           beta cut systems
+    :param int n: The dimension of the intersection matrix
     """
     ker = np.zeros((g * (n - 2), g * n))
 
